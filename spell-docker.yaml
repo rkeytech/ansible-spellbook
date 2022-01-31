@@ -1,0 +1,49 @@
+- hosts: all
+
+  become: yes
+
+  vars:
+    var_user: "{{ ansible_env.USER }}"
+
+  # Install Docker and Docker SDK on a Debian Server
+  tasks:
+    - name: Install required libraries for Docker
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        update_cache: yes
+
+    - name: Add apt-key
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/debian bullseye stable
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        update_cache: yes
+
+    - name: Add user to Docker group
+      shell: "usermod -aG docker {{ var_user }}"
+
+    - name: Install Python Package Manager
+      apt:
+        name:
+          - python3-pip
+
+    - name: Install Docker SDK
+      become_user: "{{ var_user }}"
+      pip:
+        name:
+          - docker
+          - docker-compose
