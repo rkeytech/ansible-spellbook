@@ -1,3 +1,4 @@
+---
 - hosts: all
 
   become: yes
@@ -16,14 +17,29 @@
           - gnupg
           - lsb-release
         update_cache: yes
+    
+    - name: Add key and repository for Debian
+      block:
+      - name: Add apt-key
+        apt_key:
+          url: https://download.docker.com/linux/debian/gpg
 
-    - name: Add apt-key
-      apt_key:
-        url: https://download.docker.com/linux/debian/gpg
+      - name: Add Docker repository on Debian
+        apt_repository:
+          repo: deb https://download.docker.com/linux/debian bullseye stable
+      when: ansible_facts['distribution'] == 'Debian'
 
-    - name: Add Docker repository
-      apt_repository:
-        repo: deb https://download.docker.com/linux/debian bullseye stable
+    - name: Add key and repository for Ubuntu
+      block:
+      - name: Add apt-key
+        apt_key:
+          url: https://download.docker.com/linux/ubuntu/gpg
+
+      - name: Add Docker repository on Ubuntu
+        apt_repository:
+          repo: deb https://download.docker.com/linux/ubuntu focal stable
+      when: ansible_facts['distribution'] == 'Ubuntu'
+
 
     - name: Install Docker
       apt:
