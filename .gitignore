@@ -16,3 +16,4 @@
 # Ignore inventory file for not exposing your host machines
 inventory
 ansible.cfg
+group_vars/*

@@ -1,0 +1,104 @@
+---
+- hosts: laptop
+  become: yes
+  tasks:
+    - name: Update and Upgrade our machines
+      apt:
+        update_cache: yes
+        upgrade: full
+        autoclean: yes
+        autoremove: yes
+
+    - name: Install basic command-line tools from apt repository
+      apt:
+        pkg: 
+        - git
+        - curl
+        - wget
+        - ssh
+        - flatpak
+
+    - name: Create appropriate folders and files 
+      file:
+        path: /home/{{ ansible_user }}/{{ item }}
+        state: directory
+        owner: '{{ ansible_user }}'
+        group: '{{ ansible_user }}'
+        mode: '0755'
+        recurse: yes
+      with_items:
+        - .fonts
+        - .wallpapers
+        - .icons
+        - .themes
+
+    - name: FONTS CONFIGURATION
+      block:
+      - name: Download Fonts archive
+        get_url:
+          # I'm using group_vars/all.yaml file to pass the URLs pf the zip 
+          # files into the ansible playbook.
+          url: '{{ fonts_url }}'
+          dest: /home/{{ ansible_user }}/.fonts/fonts.zip
+          owner: '{{ ansible_user }}'
+          group: '{{ ansible_user }}'
+          mode: '0755'
+      
+      - name: Extract zip file to .fonts folder
+        unarchive:
+          src: /home/{{ ansible_user }}/.fonts/fonts.zip
+          dest: /home/{{ ansible_user }}/.fonts/
+          owner: '{{ ansible_user }}'
+          group: '{{ ansible_user }}'
+          mode: '0755'
+          remote_src: yes
+    
+    - name: WALLPAPERS CONFIGURATION
+      block:
+      - name: Download Wallpapers archive
+        get_url:
+          url: '{{ wallpapers_url }}'
+          dest: /home/{{ ansible_user }}/.wallpapers/wallpapers.zip
+          owner: '{{ ansible_user }}'
+          group: '{{ ansible_user }}'
+          mode: '0755'
+      
+      - name: Extract zip file to .wallpapers folder
+        unarchive:
+          src: /home/{{ ansible_user }}/.wallpapers/wallpapers.zip
+          dest: /home/{{ ansible_user }}/.wallpapers/
+          owner: '{{ ansible_user }}'
+          group: '{{ ansible_user }}'
+          mode: '0755'
+          remote_src: yes
+
+    - name: Remove unused folders and files
+      file:
+        path: /home/{{ ansible_user }}/{{ item }}
+        state: absent
+      with_items:
+        - Templates
+        - Public
+        - .fonts/fonts.zip
+        - .wallpapers/wallpapers.zip
+
+    - name: Install packages from Flathub
+      community.general.flatpak:
+        name:
+          # Choose the Flatpak packages you want to install
+          # to your machine by commenting/uncommenting the appropriate
+          # lines.
+          - com.sublimetext.three
+          # - com.visualstudio.code
+          # - io.github.shiftey.Desktop
+          - org.videolan.VLC
+          - com.github.marktext.marktext
+          - com.toggl.TogglDesktop
+          # - com.getpostman.Postman
+          # - io.dbeaver.DBeaverCommunity
+          - io.mpv.Mpv
+          - org.remmina.Remmina
+          # - org.signal.Signal
+
+    - name: Reboot the system to apply any changes
+      reboot:

@@ -1,0 +1,11 @@
+[servers:children]
+cloud
+physical
+
+[cloud]
+alias1 ansible_host=ip_of_server ansible_user=username
+alias2 ansible_host=ip_of_Server ansible_user=username
+
+[physical]
+example_server ansible_host=ip_of_server ansible_user=username
+example_pc ansible_host=ip_of_server ansible_user=username
