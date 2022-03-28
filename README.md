@@ -13,3 +13,5 @@ You can find many ways to install Ansible on your machine [here](https://docs.an
 - [x] Install docker/docker SDK on a new server or a group of servers
 - [x] Install Portainer for docker to make installation process of containers easier
 - [ ] Install NGINX on server(s)
+- [ ] Install FoundryVTT Server on Docker
+- [ ] Post-installation and preperation of a newly formatted PC
